@@ -27,7 +27,7 @@ model User {
 
 model ApiKey {
   id            Int            @id @default(autoincrement())
-  userId        Int
+  userId        String
   name          String
   apiKey        String         @unique
   disabled      Boolean        @default(false)
@@ -46,6 +46,7 @@ model Company {
 model Model {
   id                    Int                    @id @default(autoincrement())
   name                  String
+  slug                  String
   companyId             Int
   company               Company                @relation(fields: [companyId], references: [id])
   modelProviderMappings ModelProviderMapping[]
@@ -72,7 +73,7 @@ model ModelProviderMapping {
 
 model Conversation {
   id                     Int                  @id @default(autoincrement())
-  userId                 Int
+  userId                 String
   apiKeyId               Int
   modelProviderMappingId Int
   input                  String
@@ -87,7 +88,7 @@ model Conversation {
 model OnrampTransaction {
   //when user pays some amount , add with the payment gateway
   id     Int    @id @default(autoincrement())
-  userId Int
+  userId String
   amount Int
   status String
   user   User   @relation(fields: [userId], references: [id])

@@ -26,11 +26,26 @@ export const app = new Elysia({ prefix: "auth" })
   )
   .post(
     "/signin",
-    async ({ body }) => {
-      const token = await AuthService.signin(body.email, body.password);
-      return {
-        token,
-      };
+    async ({ body, status, cookie: { auth } }) => {
+      const { correctCredentials, userId } = await AuthService.signin(
+        body.email,
+        body.password,
+      );
+      if (correctCredentials && userId) {
+        auth.set({
+          value: userId,
+          httpOnly: true,
+          maxAge: 7 * 86400,
+          path: "/profile",
+        });
+        return {
+          message: "Signed in successfully",
+        };
+      } else {
+        return status(403, {
+          message: "Incorrect credentials",
+        });
+      }
     },
     {
       body: AuthModel.signinSchema,

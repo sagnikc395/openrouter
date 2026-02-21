@@ -10,7 +10,7 @@ export namespace AuthModel {
   export type signinSchema = typeof signinSchema.static;
 
   export const signinResponseSchema = t.Object({
-    token: t.String(),
+    message: t.Literal("Signed in successfully"),
   });
 
   export type signinResponseSchema = typeof signinResponseSchema.static;

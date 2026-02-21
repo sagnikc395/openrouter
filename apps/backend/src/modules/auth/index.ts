@@ -19,7 +19,7 @@ export const app = new Elysia({ prefix: "auth" })
     },
   )
   .post(
-    "/sign-in",
+    "/signin",
     async ({ body }) => {
       const token = await AuthService.signin(body.email, body.password);
       return {

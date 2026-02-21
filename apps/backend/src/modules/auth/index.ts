@@ -1,7 +1,14 @@
 import { Elysia } from "elysia";
 import { AuthModel } from "./model";
 import { AuthService } from "./service";
+import jwt from "@elysiajs/jwt";
 export const app = new Elysia({ prefix: "auth" })
+  .use(
+    jwt({
+      name: "jwt",
+      secret: process.env.JWT_SECRET as string,
+    }),
+  )
   .post(
     "/signup",
     async ({ body, status }) => {
@@ -26,12 +33,13 @@ export const app = new Elysia({ prefix: "auth" })
   )
   .post(
     "/signin",
-    async ({ body, status, cookie: { auth } }) => {
+    async ({ jwt, body, status, cookie: { auth } }) => {
       const { correctCredentials, userId } = await AuthService.signin(
         body.email,
         body.password,
       );
       if (correctCredentials && userId) {
+        const value = await jwt.sign({ userId });
         auth.set({
           value: userId,
           httpOnly: true,

@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Cookie, Elysia } from "elysia";
 import { AuthModel } from "./model";
 import { AuthService } from "./service";
 import jwt from "@elysiajs/jwt";
@@ -39,12 +39,14 @@ export const app = new Elysia({ prefix: "auth" })
         body.password,
       );
       if (correctCredentials && userId) {
-        const value = await jwt.sign({ userId });
+        const token = await jwt.sign({ userId });
+        if (!auth) {
+          auth = new Cookie("auth", {});
+        }
         auth.set({
-          value: userId,
+          value: token,
           httpOnly: true,
           maxAge: 7 * 86400,
-          path: "/profile",
         });
         return {
           message: "Signed in successfully",

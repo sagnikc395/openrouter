@@ -1,12 +1,21 @@
 import { Request, Response } from "express";
-import { createApiKeySchema, disableApiKeySchema, deleteApiKeySchema } from "./schema";
+import {
+  createApiKeySchema,
+  disableApiKeySchema,
+  deleteApiKeySchema,
+} from "./schema";
 import { ApiKeyService } from "./service";
 
 export const ApiKeyController = {
   async create(req: Request, res: Response): Promise<void> {
     const parsed = createApiKeySchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ message: "Validation error", errors: parsed.error.flatten().fieldErrors });
+      res
+        .status(400)
+        .json({
+          message: "Validation error",
+          errors: parsed.error.flatten().fieldErrors,
+        });
       return;
     }
 
@@ -22,7 +31,12 @@ export const ApiKeyController = {
   async disable(req: Request, res: Response): Promise<void> {
     const parsed = disableApiKeySchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ message: "Validation error", errors: parsed.error.flatten().fieldErrors });
+      res
+        .status(400)
+        .json({
+          message: "Validation error",
+          errors: parsed.error.flatten().fieldErrors,
+        });
       return;
     }
 
@@ -33,7 +47,12 @@ export const ApiKeyController = {
   async remove(req: Request, res: Response): Promise<void> {
     const parsed = deleteApiKeySchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ message: "Validation error", errors: parsed.error.flatten().fieldErrors });
+      res
+        .status(400)
+        .json({
+          message: "Validation error",
+          errors: parsed.error.flatten().fieldErrors,
+        });
       return;
     }
 

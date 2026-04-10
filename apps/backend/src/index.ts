@@ -1,11 +1,20 @@
-import { Elysia } from "elysia";
+import express, { Express } from "express";
+import cookieParser from "cookie-parser";
+import { authRouter } from "./modules/auth";
+import { apiKeysRouter } from "./modules/apiKeys";
 
-import { app as authApp } from "./modules/auth";
-const app = new Elysia().use(authApp).listen(3000);
+const app: Express = express();
+const WEB_PORT = 3000;
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/auth", authRouter);
+app.use("/api-keys", apiKeysRouter);
+
+app.listen(WEB_PORT, () => {
+  console.log(`Server is running at http://localhost:${WEB_PORT}`);
+});
 
 /**
  * auth => signup , signin

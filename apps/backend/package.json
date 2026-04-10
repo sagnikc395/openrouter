@@ -6,11 +6,16 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/jwt": "^1.4.0",
+    "cookie-parser": "^1.4.7",
     "db": "*",
-    "elysia": "latest"
+    "express": "^4.22.1",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.9",
     "bun-types": "latest"
   },
   "module": "src/index.js"

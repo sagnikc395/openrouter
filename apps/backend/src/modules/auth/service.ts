@@ -2,7 +2,6 @@ import { prisma } from "db";
 
 export abstract class AuthService {
   static async signup(email: string, password: string): Promise<string> {
-    //check if the user with the email already exists
     const user = await prisma.user.create({
       data: {
         email,
@@ -12,15 +11,12 @@ export abstract class AuthService {
 
     return user.id;
   }
+
   static async signin(
     email: string,
     password: string,
   ): Promise<{ correctCredentials: boolean; userId?: string }> {
-    const user = await prisma.user.findFirst({
-      where: {
-        email,
-      },
-    });
+    const user = await prisma.user.findFirst({ where: { email } });
 
     if (!user) {
       return { correctCredentials: false };
@@ -29,6 +25,7 @@ export abstract class AuthService {
     if (!(await Bun.password.verify(password, user.password))) {
       return { correctCredentials: false };
     }
+
     return { correctCredentials: true, userId: user.id };
   }
 }

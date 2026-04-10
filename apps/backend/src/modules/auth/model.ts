@@ -1,43 +1,27 @@
-import { t } from "elysia";
-
 export namespace AuthModel {
-  export const signinSchema = t.Object({
-    email: t.String(),
-    password: t.String(),
-  });
+  export interface SignupBody {
+    email: string;
+    password: string;
+  }
 
-  //export the type object , from the type crate
-  export type signinSchema = typeof signinSchema.static;
+  export interface SigninBody {
+    email: string;
+    password: string;
+  }
 
-  export const signinResponseSchema = t.Object({
-    message: t.Literal("Signed in successfully"),
-  });
+  export interface SignupResponse {
+    id: string;
+  }
 
-  export type signinResponseSchema = typeof signinResponseSchema.static;
+  export interface SigninResponse {
+    message: "Signed in successfully";
+  }
 
-  export const signinFailureSchema = t.Object({
-    message: t.Literal("Incorrect credentials"),
-  });
+  export interface SigninFailureResponse {
+    message: "Incorrect credentials";
+  }
 
-  export type signinFailureSchema = typeof signinFailureSchema.static;
-
-  export const signupSchema = t.Object({
-    email: t.String(),
-    password: t.String(),
-  });
-
-  //export the type object , from the type crate
-  export type signupSchema = typeof signinSchema.static;
-
-  export const signupResponseSchema = t.Object({
-    id: t.String(),
-  });
-
-  export const signupFailedResponseSchema = t.Object({
-    message: t.Literal("Error while signing up"),
-  });
-
-  export type signupResponseSchema = typeof signinResponseSchema.static;
-  export type signupFailedResponseSchema =
-    typeof signupFailedResponseSchema.static;
+  export interface SignupFailedResponse {
+    message: "Error while signing up";
+  }
 }

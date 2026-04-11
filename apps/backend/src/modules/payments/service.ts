@@ -1,4 +1,4 @@
-import { prisma } from "@repo/db";
+import { prisma } from "db";
 
 //initial amount to be set for onramping
 const ONRAMP_AMOUNT = 1000;

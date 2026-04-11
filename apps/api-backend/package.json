@@ -1,6 +1,6 @@
 {
   "name": "api-backend",
-  "module": "index.ts",
+  "module": "src/index.js",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -8,5 +8,17 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "db": "*",
+    "@anthropic-ai/sdk": "^0.88.0",
+    "@elysiajs/bearer": "^1.4.3",
+    "@google/genai": "^1.49.0",
+    "elysia": "^1.4.28",
+    "openai": "^6.34.0"
   }
 }

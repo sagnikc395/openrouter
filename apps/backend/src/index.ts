@@ -1,7 +1,23 @@
-import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
+import Elysia from "elysia";
+import { app as authApp } from "./modules/auth";
+import { app as apiKeyApp } from "./modules/apiKeys";
+import { app as modelsApp } from "./modules/models";
+import { app as paymentsApp } from "./modules/payments";
 
-const app = new Elysia().get("/", () => "Hello Elysia").listen(3000);
+export type App = typeof app;
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+export const app = new Elysia()
+  .use(authApp)
+  .use(apiKeyApp)
+  .use(modelsApp)
+  .use(paymentsApp);
+
+app
+  .use(
+    cors({
+      origin: "http://localhost:3001",
+      credentials: true,
+    }),
+  )
+  .listen(3000);

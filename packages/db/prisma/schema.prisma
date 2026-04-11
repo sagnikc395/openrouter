@@ -29,10 +29,13 @@ model ApiKey {
   id            Int            @id @default(autoincrement())
   userId        String
   name          String
+  // add encryption in apiKey 
   apiKey        String         @unique
   disabled      Boolean        @default(false)
   user          User           @relation(fields: [userId], references: [id])
+  //evey api key has many conversations 
   conversations Conversation[]
+  // if user deletes a api key, set it to soft delete 
   deleted       Boolean        @default(false)
 }
 

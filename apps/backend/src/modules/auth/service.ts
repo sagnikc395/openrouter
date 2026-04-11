@@ -1,4 +1,4 @@
-import { prisma } from "db";
+import { prisma } from "@repo/db";
 
 export abstract class AuthService {
   static async signup(email: string, password: string): Promise<string> {

@@ -49,7 +49,8 @@ model Company {
 model Model {
   id                    Int                    @id @default(autoincrement())
   name                  String
-  slug                  String
+  // slug is a human readable slug that we can get and store in the database 
+  slug                  String // eg: claude/sonnet4.6 
   companyId             Int
   company               Company                @relation(fields: [companyId], references: [id])
   modelProviderMappings ModelProviderMapping[]
@@ -75,6 +76,8 @@ model ModelProviderMapping {
 }
 
 model Conversation {
+  // all the conversation the user has been doing 
+  // which model was provided and what provider was passed 
   id                     Int                  @id @default(autoincrement())
   userId                 String
   apiKeyId               Int

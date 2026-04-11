@@ -20,5 +20,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@elysiajs/eden": "^1.4.9",
+    "elysia": "^1.4.28"
+  }
 }

@@ -7,6 +7,15 @@ import { app as paymentsApp } from "./modules/payments";
 
 export type App = typeof app;
 
+const PRIMARY_BACKEND_PORT = process.env.PRIMARY_BACKEND_PORT;
+
+/**
+ * auth => signup ,signin
+ * api-key => create the API key, get API key, delete API key, disable API key
+ * model => get all the supported models, their pricing , providers etc.
+ * payment => onramp/offramp endpoints for stripe integration
+ */
+
 export const app = new Elysia()
   .use(authApp)
   .use(apiKeyApp)
@@ -16,7 +25,7 @@ export const app = new Elysia()
 app
   .use(
     cors({
-      origin: "http://localhost:3001",
+      origin: `http://localhost:${PRIMARY_BACKEND_PORT}`,
       credentials: true,
     }),
   )

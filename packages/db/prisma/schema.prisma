@@ -11,6 +11,7 @@ model User {
   id                 Int                 @id @default(autoincrement())
   email              String              @unique
   password           String
+  // not usd value -> 1 $ = 100credits 
   credits            Int                 @default(1000)
   apiKeys            ApiKey[]
   onrampTransactions OnrampTransaction[]
@@ -21,8 +22,10 @@ model ApiKey {
   id              Int            @id @default(autoincrement())
   userId          Int
   name            String
+  //apiKey shouldnt be placed as plain text in the db , should be encrypted
   apiKey          String         @unique
   disabled        Boolean        @default(false)
+  //soft delete the deleted flag so that it doesnt break FK relationship
   deleted         Boolean        @default(false)
   lastUsed        DateTime?
   creditsConsumed Int            @default(0)
@@ -40,6 +43,9 @@ model Company {
 model Model {
   id                    Int                    @id @default(autoincrement())
   name                  String
+  // slug is the name of the company name + model name 
+  // moonshot-ai/Kimi-K2
+  // human readable slug that the model provides us 
   slug                  String
   companyId             Int
   company               Company                @relation(fields: [companyId], references: [id])
@@ -50,13 +56,18 @@ model Provider {
   id                    Int                    @id @default(autoincrement())
   name                  String
   website               String
+  // models and providers exist indep and is a many to many relationship in the providers
   modelProviderMappings ModelProviderMapping[]
 }
 
 model ModelProviderMapping {
+  // create a many to many relationship mapping 
   id              Int            @id @default(autoincrement())
   modelId         Int
   providerId      Int
+  // actually cost per million tokens, not a good idea to store floats in database 
+  // even if we have to pad the cost a bit 
+  // the credits that the user has should be an integer.
   inputTokenCost  Int
   outputTokenCost Int
   model           Model          @relation(fields: [modelId], references: [id])

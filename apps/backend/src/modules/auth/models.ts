@@ -1,11 +1,13 @@
 import { t } from "elysia";
 
 export namespace AuthModel {
+  // model for signin
   export const signinSchema = t.Object({
     email: t.String(),
     password: t.String(),
   });
 
+  //can also export the type of the signinSchema for using it for maximum type safety on the client side
   export type signInSchema = typeof signinSchema.static;
 
   export const signinResponseSchema = t.Object({
@@ -19,6 +21,8 @@ export namespace AuthModel {
   });
 
   export type signinFailureSchema = typeof signinFailureSchema.static;
+
+  //model for signup
 
   export const signupSchema = t.Object({
     email: t.String(),

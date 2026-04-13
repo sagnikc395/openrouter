@@ -3,6 +3,7 @@ import { AuthModel } from "./models";
 import { AuthService } from "./service";
 import jwt from "@elysiajs/jwt";
 
+// route creation file
 export const app = new Elysia({ prefix: "auth" })
   .use(
     jwt({
@@ -10,6 +11,7 @@ export const app = new Elysia({ prefix: "auth" })
       secret: process.env.JWT_SECRET!,
     }),
   )
+  //signup logic
   .post(
     "/sign-up",
     async ({ body, status }) => {
@@ -26,6 +28,8 @@ export const app = new Elysia({ prefix: "auth" })
       }
     },
     {
+      // return responses with the given schema
+      // one with a success and one with a failure
       body: AuthModel.signupSchema,
       response: {
         200: AuthModel.signupResponseSchema,
@@ -33,6 +37,7 @@ export const app = new Elysia({ prefix: "auth" })
       },
     },
   )
+  //signin logic
   .post(
     "/sign-in",
     async ({ jwt, body, status, cookie: { auth } }) => {

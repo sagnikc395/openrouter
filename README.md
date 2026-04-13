@@ -8,6 +8,10 @@ helps in tracking token budget, compute costs in a nice format.
 
 ## Architecture
 
+![Architecture](./public/open-router-v0.1.png)
+
+## LLD
+
 - frontend(openrouter.com) -> primary backend (used for user registation - dashboard/ admin related functionality exposed here) ; (primary backend also called the timeseried db) -> database
   - signup
   - signin

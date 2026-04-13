@@ -3,6 +3,8 @@ import { jwt } from "@elysiajs/jwt";
 
 export abstract class AuthService {
   static async signup(email: string, password: string): Promise<string> {
+    //check if the user with the email already exist
+    // good thing cause email is already unique
     const user = await prisma.user.create({
       data: {
         email,

@@ -16,6 +16,6 @@
   },
   "module": "src/index.js",
   "exports": {
-    ".": "./src/app.ts"
+    ".": "./src/index.ts"
   }
 }

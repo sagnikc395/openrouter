@@ -7,7 +7,7 @@ import { app as paymentsApp } from "./modules/payments";
 
 export type App = typeof app;
 
-const PRIMARY_BACKEND_PORT = process.env.PRIMARY_BACKEND_PORT;
+const PRIMARY_BACKEND_PORT = 3000;
 
 /**
  * auth => signup ,signin
@@ -29,4 +29,4 @@ app
       credentials: true,
     }),
   )
-  .listen(3000);
+  .listen(PRIMARY_BACKEND_PORT);

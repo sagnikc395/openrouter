@@ -8,6 +8,7 @@ export abstract class AuthService {
     const user = await prisma.user.create({
       data: {
         email,
+        //encrypt the password before storing
         password: await Bun.password.hash(password),
       },
     });
@@ -24,13 +25,16 @@ export abstract class AuthService {
     });
 
     if (!user) {
+      //if user itself doesnt exist then return
       return { correctCredentials: false };
     }
 
     if (!(await Bun.password.verify(password, user.password))) {
+      // check if the user password is correct
       return { correctCredentials: false };
     }
 
+    //correct user , return the object
     return { correctCredentials: true, userId: user.id.toString() };
   }
 

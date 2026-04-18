@@ -259,4 +259,4 @@ GEMINI_API_KEY=AIza...
 
 ## License
 
-ISC
+MIT

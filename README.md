@@ -1,5 +1,7 @@
 # OpenRouter
 
+![Architecture](./public/open-router-v0.1.png)
+
 A unified API gateway for running and comparing various open-source AI models. OpenRouter provides a single interface to access multiple LLM providers (OpenAI, Anthropic Claude, Google Gemini), with built-in token usage tracking, cost management, and credit-based billing.
 
 ## Project Overview

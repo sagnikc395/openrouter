@@ -1,119 +1,62 @@
-import { Cookie, Elysia } from "elysia";
+import { Router, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { AuthModel } from "./models";
 import { AuthService } from "./service";
-import jwt from "@elysiajs/jwt";
+import {
+  authenticateToken,
+  AuthRequest,
+} from "../../middleware/authMiddleware";
 
-// route creation file
-export const app = new Elysia({ prefix: "auth" })
-  // add the jwt middleware
-  .use(
-    jwt({
-      name: "jwt", //repersents how we will get access from jwt instance
-      secret: process.env.JWT_SECRET!,
-    }),
-  )
-  //signup logic
-  .post(
-    "/sign-up",
-    async ({ body, status }) => {
-      try {
-        const userId = await AuthService.signup(body.email, body.password);
-        return {
-          id: userId,
-        };
-      } catch (e) {
-        console.log(e);
-        return status(400, {
-          message: "Error while signing up",
-        });
+export const authRouter = Router();
+
+authRouter.post("/sign-up", async (req: Request, res: Response) => {
+  try {
+    const body = req.body as AuthModel.SignupSchema;
+    const userId = await AuthService.signup(body.email, body.password);
+    res.json({ id: userId });
+  } catch {
+    res.status(400).json({ message: "Error while signing up" });
+  }
+});
+
+authRouter.post("/sign-in", async (req: Request, res: Response) => {
+  try {
+    const body = req.body as AuthModel.SigninSchema;
+    const { correctCredentials, userId } = await AuthService.signin(
+      body.email,
+      body.password,
+    );
+    if (correctCredentials && userId) {
+      const token = jwt.sign({ userId }, process.env.JWT_SECRET!, {
+        expiresIn: "7d",
+      });
+      res.cookie("auth", token, {
+        httpOnly: true,
+        maxAge: 7 * 86400 * 1000,
+      });
+      res.json({ message: "Signed in successfully" });
+    } else {
+      res.status(403).json({ message: "Incorrect credentials" });
+    }
+  } catch {
+    res.status(403).json({ message: "Incorrect credentials" });
+  }
+});
+
+authRouter.get(
+  "/profile",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userData = await AuthService.getUserDetails(Number(req.userId));
+      if (!userData) {
+        return res
+          .status(400)
+          .json({ message: "Error while fetching user details" });
       }
-    },
-    {
-      // return responses with the given schema
-      // one with a success and one with a failure
-      body: AuthModel.signupSchema,
-      response: {
-        200: AuthModel.signupResponseSchema,
-        400: AuthModel.signupFailedResponseSchema,
-      },
-    },
-  )
-  //signin logic
-  .post(
-    "/sign-in",
-    async ({ jwt, body, status, cookie: { auth } }) => {
-      const { correctCredentials, userId } = await AuthService.signin(
-        body.email,
-        body.password,
-      );
-      if (correctCredentials && userId) {
-        const token = await jwt.sign({ userId });
-        if (!auth) {
-          auth = new Cookie("auth", {});
-        }
-
-        auth.set({
-          value: token,
-          httpOnly: true,
-          maxAge: 7 * 86400,
-        });
-
-        return {
-          message: "Signed in successfully",
-        };
-      } else {
-        return status(403, {
-          message: "Incorrect credentials",
-        });
-      }
-    },
-    {
-      body: AuthModel.signinSchema,
-      response: {
-        200: AuthModel.signinResponseSchema,
-        403: AuthModel.signinFailureSchema,
-      },
-    },
-  )
-  .use(
-    new Elysia()
-      .use(
-        jwt({
-          name: "jwt",
-          secret: process.env.JWT_SECRET!,
-        }),
-      )
-      .resolve(async ({ cookie: { auth }, status, jwt }) => {
-        if (!auth) {
-          return status(401);
-        }
-
-        const decoded = await jwt.verify(auth.value as string);
-
-        if (!decoded || !decoded.userId) {
-          return status(401);
-        }
-
-        return {
-          userId: decoded.userId as string,
-        };
-      })
-      .get(
-        "/profile",
-        async ({ userId, status }) => {
-          const userData = await AuthService.getUserDetails(Number(userId));
-          if (!userData) {
-            return status(400, {
-              message: "Error while fetching user details",
-            });
-          }
-          return userData;
-        },
-        {
-          response: {
-            200: AuthModel.profileResponseSchema,
-            400: AuthModel.profileResponseErrorSchema,
-          },
-        },
-      ),
-  );
+      res.json(userData);
+    } catch {
+      res.status(400).json({ message: "Error while fetching user details" });
+    }
+  },
+);

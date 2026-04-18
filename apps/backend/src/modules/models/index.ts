@@ -1,33 +1,16 @@
-import Elysia from "elysia";
+import { Router, Request, Response } from "express";
 import { ModelsService } from "./service";
-import { ModelsModel } from "./models";
 
-export const app = new Elysia({ prefix: "models" })
-  .get(
-    "/",
-    async () => {
-      const models = await ModelsService.getModels();
-      return {
-        models,
-      };
-    },
-    {
-      response: {
-        200: ModelsModel.getModelsResponseSchema,
-      },
-    },
-  )
-  .get(
-    "/:id/providers",
-    async ({ params: { id } }) => {
-      const providers = await ModelsService.getModelProviders(Number(id));
-      return {
-        providers,
-      };
-    },
-    {
-      response: {
-        200: ModelsModel.getModelProvidersResponseSchema,
-      },
-    },
+export const modelsRouter = Router();
+
+modelsRouter.get("/", async (req: Request, res: Response) => {
+  const models = await ModelsService.getModels();
+  res.json({ models });
+});
+
+modelsRouter.get("/:id/providers", async (req: Request, res: Response) => {
+  const providers = await ModelsService.getModelProviders(
+    Number(req.params.id),
   );
+  res.json({ providers });
+});

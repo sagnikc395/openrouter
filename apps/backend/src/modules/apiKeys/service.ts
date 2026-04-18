@@ -2,7 +2,7 @@ import { prisma } from "db";
 
 const API_KEY_LENGTH = 20;
 const ALPHABET_SET =
-  "zxcvbnmasdfghjklqwertyuiopZXCVBNMASDFGHJKLQWERTYUIOP1234567890";
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 export abstract class ApiKeyService {
   static createRandomApiKey() {
@@ -22,6 +22,7 @@ export abstract class ApiKeyService {
     apiKey: string;
   }> {
     const apiKey = ApiKeyService.createRandomApiKey();
+    // create insertion of the apikey into the db
     const apiKeyDb = await prisma.apiKey.create({
       data: {
         name,

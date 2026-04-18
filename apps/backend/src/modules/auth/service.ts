@@ -1,15 +1,12 @@
 import { prisma } from "db";
-import { jwt } from "@elysiajs/jwt";
+import bcrypt from "bcrypt";
 
 export abstract class AuthService {
   static async signup(email: string, password: string): Promise<string> {
-    //check if the user with the email already exist
-    // good thing cause email is already unique
     const user = await prisma.user.create({
       data: {
         email,
-        //encrypt the password before storing
-        password: await Bun.password.hash(password),
+        password: await bcrypt.hash(password, 10),
       },
     });
     return user.id.toString();
@@ -25,16 +22,13 @@ export abstract class AuthService {
     });
 
     if (!user) {
-      //if user itself doesnt exist then return
       return { correctCredentials: false };
     }
 
-    if (!(await Bun.password.verify(password, user.password))) {
-      // check if the user password is correct
+    if (!(await bcrypt.compare(password, user.password))) {
       return { correctCredentials: false };
     }
 
-    //correct user , return the object
     return { correctCredentials: true, userId: user.id.toString() };
   }
 

@@ -1,107 +1,62 @@
-import jwt from "@elysiajs/jwt";
-import Elysia, { t } from "elysia";
+import { Router, Request, Response } from "express";
 import { ApiKeyModel } from "./models";
 import { ApiKeyService } from "./service";
+import {
+  authenticateToken,
+  AuthRequest,
+} from "../../middleware/authMiddleware";
 
-export const app = new Elysia({ prefix: "api-keys" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: process.env.JWT_SECRET!,
-    }),
-  )
-  .resolve(async ({ cookie: { auth }, status, jwt }) => {
-    if (!auth) {
-      return status(401);
-    }
+export const apiKeysRouter = Router();
 
-    const decoded = await jwt.verify(auth.value as string);
+apiKeysRouter.post(
+  "/",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const body = req.body as ApiKeyModel.CreateApiKeySchema;
+    const { apiKey, id } = await ApiKeyService.createApiKey(
+      body.name,
+      Number(req.userId),
+    );
+    res.json({ id, apiKey });
+  },
+);
 
-    if (!decoded || !decoded.userId) {
-      return status(401);
-    }
+apiKeysRouter.get(
+  "/",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const apiKeys = await ApiKeyService.getApiKeys(Number(req.userId));
+    res.json({ apiKeys });
+  },
+);
 
-    return {
-      userId: decoded.userId as string,
-    };
-  })
-  .post(
-    "/",
-    async ({ userId, body }) => {
-      const { apiKey, id } = await ApiKeyService.createApiKey(
-        body.name,
-        Number(userId),
+apiKeysRouter.put(
+  "/",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const body = req.body as ApiKeyModel.UpdateApiKeySchema;
+    try {
+      await ApiKeyService.updateApiKeyDisabled(
+        Number(body.id),
+        Number(req.userId),
+        body.disabled,
       );
-      return {
-        id,
-        apiKey,
-      };
-    },
-    {
-      body: ApiKeyModel.createApiKeySchema,
-      response: {
-        200: ApiKeyModel.createApiKeyReponse,
-      },
-    },
-  )
-  .get(
-    "/",
-    async ({ userId }) => {
-      const apiKeys = await ApiKeyService.getApiKeys(Number(userId));
-      return {
-        apiKeys: apiKeys,
-      };
-    },
-    {
-      response: {
-        200: ApiKeyModel.getApiKeysResponseSchema,
-      },
-    },
-  )
-  .put(
-    "/",
-    ({ body, userId, status }) => {
-      try {
-        ApiKeyService.updateApiKeyDisabled(
-          Number(body.id),
-          Number(userId),
-          body.disabled,
-        );
-        return {
-          message: "Updated api key successfully",
-        };
-      } catch (e) {
-        return status(411, {
-          message: "Updating api key unsuccessful",
-        });
-      }
-    },
-    {
-      body: ApiKeyModel.updateApiKeySchema,
-      response: {
-        200: ApiKeyModel.updateApiKeyResponseSchema,
-        411: ApiKeyModel.disableApiKeyResponseFailedSchema,
-      },
-    },
-  )
-  .delete(
-    "/:id",
-    async ({ params: { id }, userId, status }) => {
-      try {
-        await ApiKeyService.delete(Number(id), Number(userId));
-        return {
-          message: "Api key deleted successfully",
-        };
-      } catch (e) {
-        return status(411, {
-          message: "Api key deletetion failed",
-        });
-      }
-    },
-    {
-      response: {
-        200: ApiKeyModel.deleteApiKeyResponseSchema,
-        411: ApiKeyModel.deleteApiKeyResponseFailedSchema,
-      },
-    },
-  );
+      res.json({ message: "Updated api key successfully" });
+    } catch {
+      res.status(411).json({ message: "Updating api key unsuccessful" });
+    }
+  },
+);
+
+apiKeysRouter.delete(
+  "/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      await ApiKeyService.delete(Number(req.params.id), Number(req.userId));
+      res.json({ message: "Api key deleted successfully" });
+    } catch {
+      res.status(411).json({ message: "Api key deletetion failed" });
+    }
+  },
+);

@@ -1,50 +1,21 @@
-import Elysia from "elysia";
-import { PaymentsModel } from "./models";
+import { Router, Response } from "express";
 import { PaymentsService } from "./service";
-import jwt from "@elysiajs/jwt";
+import {
+  authenticateToken,
+  AuthRequest,
+} from "../../middleware/authMiddleware";
 
-export const app = new Elysia({ prefix: "payments" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: process.env.JWT_SECRET!,
-    }),
-  )
-  .resolve(async ({ cookie: { auth }, status, jwt }) => {
-    if (!auth) {
-      return status(401);
+export const paymentsRouter = Router();
+
+paymentsRouter.post(
+  "/onramp",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const credits = await PaymentsService.onramp(Number(req.userId));
+      res.json({ message: "Successfully onramped !", credits });
+    } catch {
+      res.status(411).json({ message: "Onramp Failed!", credits: 0 });
     }
-
-    const decoded = await jwt.verify(auth.value as string);
-
-    if (!decoded || !decoded.userId) {
-      return status(401);
-    }
-
-    return {
-      userId: decoded.userId as string,
-    };
-  })
-
-  .post(
-    "/onramp",
-    async ({ userId, status }) => {
-      try {
-        const credits = await PaymentsService.onramp(Number(userId));
-        return {
-          message: "Onramp successfull" as const,
-          credits,
-        };
-      } catch (e) {
-        return status(411, {
-          message: "Onramp Failed" as const,
-        });
-      }
-    },
-    {
-      response: {
-        200: PaymentsModel.onrampSuccessResponseSchema,
-        411: PaymentsModel.onrampFailedResponseSchema,
-      },
-    },
-  );
+  },
+);

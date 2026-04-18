@@ -1,49 +1,37 @@
-import { t } from "elysia";
-
 export namespace ModelsModel {
-  export const getModelsResponseSchema = t.Object({
-    models: t.Array(
-      t.Object({
-        id: t.String(),
-        name: t.String(),
-        slug: t.String(),
-        company: t.Object({
-          id: t.String(),
-          name: t.String(),
-          website: t.String(),
-        }),
-      }),
-    ),
-  });
+  export interface ModelInfo {
+    id: string;
+    name: string;
+    slug: string;
+    company: {
+      id: string;
+      name: string;
+      website: string;
+    };
+  }
 
-  export type getModelsResponseSchema = typeof getModelsResponseSchema.static;
+  export interface GetModelsResponse {
+    models: ModelInfo[];
+  }
 
-  export const getProvidersResponseSchema = t.Object({
-    providers: t.Array(
-      t.Object({
-        id: t.String(),
-        name: t.String(),
-        website: t.String(),
-      }),
-    ),
-  });
+  export interface ProviderInfo {
+    id: string;
+    name: string;
+    website: string;
+  }
 
-  export type getProvidersResponseSchema =
-    typeof getProvidersResponseSchema.static;
+  export interface GetProvidersResponse {
+    providers: ProviderInfo[];
+  }
 
-  export const getModelProvidersResponseSchema = t.Object({
-    providers: t.Array(
-      t.Object({
-        id: t.String(),
-        providerId: t.String(),
-        providerName: t.String(),
-        providerWebsite: t.String(),
-        inputTokenCost: t.Number(),
-        outputTokenCost: t.Number(),
-      }),
-    ),
-  });
-
-  export type getModelProvidersResponseSchema =
-    typeof getModelProvidersResponseSchema.static;
+  export interface GetModelProvidersResponse {
+    providers: {
+      id: string;
+      providerId: string;
+      providerName: string;
+      providerWebsite: string;
+      inputTokenCost: number;
+      outputTokenCost: number;
+    }[];
+  }
 }

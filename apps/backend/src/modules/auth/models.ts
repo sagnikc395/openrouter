@@ -1,52 +1,35 @@
-import { t } from "elysia";
-
 export namespace AuthModel {
-  // model for signin
-  export const signinSchema = t.Object({
-    email: t.String(),
-    password: t.String(),
-  });
+  export interface SigninSchema {
+    email: string;
+    password: string;
+  }
 
-  //can also export the type of the signinSchema for using it for maximum type safety on the client side
-  export type signInSchema = typeof signinSchema.static;
+  export interface SigninResponse {
+    message: "Signed in successfully";
+  }
 
-  export const signinResponseSchema = t.Object({
-    message: t.Literal("Signed in successfully"),
-  });
+  export interface SigninFailure {
+    message: "Incorrect credentials";
+  }
 
-  export type signinResponseSchema = typeof signinResponseSchema.static;
+  export interface SignupSchema {
+    email: string;
+    password: string;
+  }
 
-  export const signinFailureSchema = t.Object({
-    message: t.Literal("Incorrect credentials"),
-  });
+  export interface SignupResponse {
+    id: string;
+  }
 
-  export type signinFailureSchema = typeof signinFailureSchema.static;
+  export interface SignupFailedResponse {
+    message: "Error while signing up";
+  }
 
-  //model for signup
+  export interface ProfileResponse {
+    credits: number;
+  }
 
-  export const signupSchema = t.Object({
-    email: t.String(),
-    password: t.String(),
-  });
-
-  export type signupSchema = typeof signinSchema.static;
-
-  export const signupResponseSchema = t.Object({
-    id: t.String(),
-  });
-
-  export const signupFailedResponseSchema = t.Object({
-    message: t.Literal("Error while signing up"),
-  });
-
-  export type signupResponseSchema = typeof signinResponseSchema.static;
-  export type signupFailedResponseSchema = typeof signupFailedResponseSchema;
-
-  export const profileResponseSchema = t.Object({
-    credits: t.Number(),
-  });
-
-  export const profileResponseErrorSchema = t.Object({
-    message: t.Literal("Error while fetching user details"),
-  });
+  export interface ProfileResponseError {
+    message: "Error while fetching user details";
+  }
 }

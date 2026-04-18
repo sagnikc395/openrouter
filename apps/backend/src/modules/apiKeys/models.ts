@@ -1,66 +1,44 @@
-import { t } from "elysia";
-
 export namespace ApiKeyModel {
-  export const createApiKeySchema = t.Object({
-    name: t.String(),
-  });
+  export interface CreateApiKeySchema {
+    name: string;
+  }
 
-  export type createApiKeySchema = typeof createApiKeySchema.static;
+  export interface CreateApiKeyResponse {
+    id: string;
+    apiKey: string;
+  }
 
-  export const createApiKeyReponse = t.Object({
-    id: t.String(),
-    apiKey: t.String(),
-  });
+  export interface UpdateApiKeySchema {
+    id: string;
+    disabled: boolean;
+  }
 
-  export type createApiKeyReponse = typeof createApiKeyReponse.static;
+  export interface UpdateApiKeyResponse {
+    message: "Updated api key successfully";
+  }
 
-  export const updateApiKeySchema = t.Object({
-    id: t.String(),
-    disabled: t.Boolean(),
-  });
+  export interface DisableApiKeyResponseFailed {
+    message: "Updating api key unsuccessful";
+  }
 
-  export type updateApiKeySchema = typeof updateApiKeySchema.static;
+  export interface ApiKeyInfo {
+    id: string;
+    apiKey: string;
+    name: string;
+    creditsConsumed: number;
+    lastUsed: Date | null;
+    disabled: boolean;
+  }
 
-  export const updateApiKeyResponseSchema = t.Object({
-    message: t.Literal("Updated api key successfully"),
-  });
+  export interface GetApiKeysResponse {
+    apiKeys: ApiKeyInfo[];
+  }
 
-  export type updateApiKeyResponseSchema =
-    typeof updateApiKeyResponseSchema.static;
+  export interface DeleteApiKeyResponse {
+    message: "Api key deleted successfully";
+  }
 
-  export const disableApiKeyResponseFailedSchema = t.Object({
-    message: t.Literal("Updating api key unsuccessful"),
-  });
-
-  export type disableApiKeyResponseFailedSchema =
-    typeof disableApiKeyResponseFailedSchema.static;
-
-  export const getApiKeysResponseSchema = t.Object({
-    apiKeys: t.Array(
-      t.Object({
-        id: t.String(),
-        apiKey: t.String(),
-        name: t.String(),
-        credisConsumed: t.Number(),
-        lastUsed: t.Nullable(t.Date()),
-        disabled: t.Boolean(),
-      }),
-    ),
-  });
-
-  export type getApiKeysResponseSchema = typeof getApiKeysResponseSchema.static;
-
-  export const deleteApiKeyResponseSchema = t.Object({
-    message: t.Literal("Api key deleted successfully"),
-  });
-
-  export type deleteApiKeyResponseSchema =
-    typeof deleteApiKeyResponseSchema.static;
-
-  export const deleteApiKeyResponseFailedSchema = t.Object({
-    message: t.Literal("Api key deletetion failed"),
-  });
-
-  export type deleteApiKeyResponseFailedSchema =
-    typeof deleteApiKeyResponseFailedSchema.static;
+  export interface DeleteApiKeyResponseFailed {
+    message: "Api key deletetion failed";
+  }
 }

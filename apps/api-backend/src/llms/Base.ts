@@ -1,4 +1,4 @@
-import { Messages } from "../types";
+import { Message } from "../types";
 
 export type LLMResponse = {
   completions: {
@@ -13,7 +13,7 @@ export type LLMResponse = {
 };
 
 export class BaseLLM {
-  static async chat(model: string, messages: Messages): Promise<LLMResponse> {
+  static async chat(model: string, messages: Message[]): Promise<LLMResponse> {
     throw new Error(`Not yet implemented chat function!`);
   }
 }

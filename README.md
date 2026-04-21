@@ -12,25 +12,26 @@ OpenRouter solves the fragmentation problem of AI model access by offering:
 - **Token & Cost Tracking**: Automatic usage metrics and cost computation per model
 - **Credit-Based Billing**: Prepaid credits system with transaction history
 - **API Key Management**: Create, manage, and track usage per API key
-- **Streaming Responses**: Real-time token-by-token streaming support
+- **Streaming Responses**: Real-time token-by-token streaming via SSE
 
 ## Tech Stack
 
-| Layer               | Technology                       |
-| ------------------- | -------------------------------- |
-| Runtime             | Bun 1.3.9                        |
-| Primary Backend     | Express.js 4.18.2                |
-| API Gateway Backend | Express.js 4.18.2 + Zod 3.24     |
-| Frontend            | React 19 + Tailwind CSS 4        |
-| UI Components       | shadcn/ui + Radix primitives     |
-| Database            | PostgreSQL (Neon Serverless)     |
-| ORM                 | Prisma 7.7.0                     |
-| Authentication      | JWT + bcrypt                     |
-| Validation          | Zod                              |
-| AI SDKs             | OpenAI, Anthropic, Google Gemini |
-| Data Fetching       | TanStack Query 5                 |
-| Routing             | React Router 7                   |
-| Monorepo            | Turbo 2.8.10                     |
+| Layer               | Technology                                             |
+| ------------------- | ------------------------------------------------------ |
+| Runtime             | Bun 1.3.9                                              |
+| Primary Backend     | Express.js 4.18.2                                      |
+| API Gateway Backend | Express.js 4.18.2 + Zod 3.24                           |
+| Frontend            | React 19 + Tailwind CSS 4                              |
+| Frontend Server     | Bun.serve() with HTML imports + HMR                    |
+| UI Components       | shadcn/ui + Radix primitives                           |
+| Database            | PostgreSQL (Neon Serverless)                           |
+| ORM                 | Prisma 7.7.0                                           |
+| Authentication      | JWT + bcrypt                                           |
+| Validation          | Zod 3.24                                               |
+| AI SDKs             | openai 6.x, @anthropic-ai/sdk 0.88, @google/genai 1.x |
+| Data Fetching       | TanStack Query 5                                       |
+| Routing             | React Router 7                                         |
+| Monorepo            | Turbo 2.8.10                                           |
 
 ## Architecture
 
@@ -76,24 +77,23 @@ Handles all user-facing and administrative functionality:
 - **Models Module** (`/models`): Available AI models and provider listings
 - **Payments Module** (`/payments`): Credit purchases and transaction history
 
-#### API Backend (Elysia - Port 3001)
+#### API Backend (Express.js - Port 3001)
 
 Handles LLM proxy and streaming:
 
 - **Completions Endpoint**: Proxy requests to OpenAI/Anthropic/Gemini
-- **Streaming**: Server-sent events for real-time token delivery
+- **Streaming**: Server-sent events (SSE) for real-time token delivery
 - **Token Counting**: Input/output token tracking per request
-- **Credit Deduction**: Automatic credit consumption
+- **Credit Deduction**: Automatic credit consumption via Prisma transaction
 
-#### Dashboard Frontend (React - Port 9001)
+#### Dashboard Frontend (React + Bun.serve - Port 9001)
 
-User dashboard for:
+Served via `Bun.serve()` with native HTML imports and HMR. Pages:
 
 - Authentication (sign up, sign in)
 - API key management
-- Usage statistics and history
 - Credit balance and purchases
-- Conversation history
+- Dashboard overview with usage stats
 
 ## Database Schema
 
@@ -107,10 +107,10 @@ User dashboard for:
 │ - email     │       │ - userId    │       │ - userId            │
 │ - password  │       │ - apiKey   │       │ - apiKeyId          │
 │ - credits   │       │ - disabled │       │ - input/output     │
-│             │       │ - credits  │       │ - token counts     │
-└─────────────┘       └─────────────┘       └─────────────────────┘
-                                                     │
-                                                     ▼
+│             │       │ - deleted  │       │ - token counts     │
+└─────────────┘       │ - creditsConsumed  └─────────────────────┘
+                      └─────────────┘              │
+                                                    ▼
 ┌─────────────────────┐       ┌─────────────────────┐
 │   OnrampTransaction │       │  ModelProviderMap   │
 │                     │       │                     │
@@ -139,9 +139,9 @@ User dashboard for:
 | Model                  | Description                                     |
 | ---------------------- | ----------------------------------------------- |
 | `User`                 | User accounts with credit balance               |
-| `ApiKey`               | User API keys with usage tracking               |
+| `ApiKey`               | User API keys with usage tracking (soft-delete) |
 | `Company`              | AI provider companies (OpenAI, Anthropic, etc.) |
-| `Model`                | Available AI models                             |
+| `Model`                | Available AI models with slugs                  |
 | `Provider`             | LLM providers                                   |
 | `ModelProviderMapping` | Cost mapping per model per provider             |
 | `OnrampTransaction`    | Credit purchase transactions                    |
@@ -165,9 +165,9 @@ User dashboard for:
 
 ### API Backend (Port 3001)
 
-| Route          | Method | Description                |
-| -------------- | ------ | -------------------------- |
-| `/completions` | POST   | LLM completion (streaming) |
+| Route          | Method | Description                    |
+| -------------- | ------ | ------------------------------ |
+| `/completions` | POST   | LLM completion (SSE streaming) |
 
 ## Project Structure
 
@@ -183,21 +183,36 @@ openrouter/
 │   │           ├── apiKeys/
 │   │           ├── models/
 │   │           └── payments/
-│   ├── api-backend/         # Elysia LLM gateway
+│   ├── api-backend/         # Express LLM gateway
 │   │   └── src/
 │   │       ├── index.ts
+│   │       ├── types.ts
 │   │       └── llms/
 │   │           ├── Base.ts
 │   │           ├── Openai.ts
 │   │           ├── Claude.ts
 │   │           └── Gemini.ts
-│   └── dashboard-frontend/  # React dashboard
+│   └── dashboard-frontend/  # React dashboard (Bun.serve)
 │       └── src/
+│           ├── index.ts       # Bun.serve entry point
+│           ├── frontend.tsx   # React root
+│           ├── pages/
+│           │   ├── Landing.tsx
+│           │   ├── Signin.tsx
+│           │   ├── Signup.tsx
+│           │   ├── Dashboard.tsx
+│           │   ├── ApiKeys.tsx
+│           │   └── Credits.tsx
+│           ├── components/
+│           └── providers/
 ├── packages/
 │   ├── db/                  # Prisma database package
-│   │   └── prisma/
-│   │       └── schema.prisma
-│   └── eslint-config/       # ESLint configuration
+│   │   ├── prisma/
+│   │   │   └── schema.prisma
+│   │   └── index.ts
+│   ├── ui/                  # Shared React UI components
+│   ├── typescript-config/   # Shared TypeScript configs
+│   └── eslint-config/       # Shared ESLint configuration
 ├── turbo.json              # Turborepo config
 └── package.json
 ```

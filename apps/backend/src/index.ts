@@ -9,12 +9,13 @@ import { paymentsRouter } from "./modules/payments";
 export type App = express.Application;
 
 const PRIMARY_BACKEND_PORT = 3000;
+const FRONTEND_PORT = 9001;
 
 export const app = express();
 
 app.use(
   cors({
-    origin: `http://localhost:${PRIMARY_BACKEND_PORT}`,
+    origin: `http://localhost:${FRONTEND_PORT}`,
     credentials: true,
   }),
 );

@@ -1,6 +1,9 @@
-import { Link, useLocation } from "react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useLocation, useNavigate } from "react-router";
 import { cn } from "@/lib/utils";
+import { useElysiaClient } from "@/providers/Eden";
 import { LayoutDashboard, Key, Coins, Zap, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -10,6 +13,22 @@ const navItems = [
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const client = useElysiaClient();
+  const signOutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await client.auth["sign-out"].post();
+      if (response.error) {
+        throw new Error("Failed to sign out");
+      }
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.clear();
+      navigate("/signin");
+    },
+  });
 
   return (
     <div className="dark min-h-screen bg-background flex">
@@ -49,13 +68,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Footer */}
         <div className="px-3 py-4 border-t border-border/50">
-          <Link
-            to="/signin"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full justify-start gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground"
+            onClick={() => signOutMutation.mutate()}
+            disabled={signOutMutation.isPending}
           >
             <LogOut className="size-4" />
-            Sign out
-          </Link>
+            {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+          </Button>
         </div>
       </aside>
 

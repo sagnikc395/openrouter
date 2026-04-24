@@ -33,6 +33,7 @@ authRouter.post("/sign-in", async (req: Request, res: Response) => {
       res.cookie("auth", token, {
         httpOnly: true,
         maxAge: 7 * 86400 * 1000,
+        sameSite: "lax",
       });
       res.json({ message: "Signed in successfully" });
     } else {
@@ -60,3 +61,11 @@ authRouter.get(
     }
   },
 );
+
+authRouter.post("/sign-out", async (_req: Request, res: Response) => {
+  res.clearCookie("auth", {
+    httpOnly: true,
+    sameSite: "lax",
+  });
+  res.json({ message: "Signed out successfully" });
+});

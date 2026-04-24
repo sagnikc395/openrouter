@@ -319,7 +319,7 @@ export function ApiKeys() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
-                        {(key.credisConsumed ?? 0).toLocaleString()}
+                        {(key.creditsConsumed ?? 0).toLocaleString()}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">

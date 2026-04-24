@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import { z } from "zod";
 import { prisma } from "db";
-import { ConversationSchema, MessageSchema } from "./types";
-import { Openai } from "./llms/Openai";
+import { MessageSchema } from "./types";
+import { Openai } from "./llms/OpenAI";
 import { Claude } from "./llms/Claude";
 import { Gemini } from "./llms/Gemini";
 
@@ -44,6 +44,9 @@ app.post("/completions", async (req, res) => {
           slug: body.model,
         },
       },
+      include: {
+        provider: true,
+      },
     });
 
     if (!modelProviderMapping) {
@@ -54,10 +57,12 @@ app.post("/completions", async (req, res) => {
     const outputCost = modelProviderMapping.outputTokenCost;
 
     let response;
-    const providerName = body.model.split("-")[0];
+    const providerName = modelProviderMapping.provider.name.toLowerCase();
 
-    if (providerName === "openai" || providerName === "google") {
+    if (providerName === "openai") {
       response = await Openai.chat(body.model, body.messages);
+    } else if (providerName === "google" || providerName === "gemini") {
+      response = await Gemini.chat(body.model, body.messages);
     } else if (providerName === "anthropic") {
       response = await Claude.chat(body.model, body.messages);
     } else {

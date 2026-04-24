@@ -60,7 +60,7 @@ export function Credits() {
 
   const apiKeys = apiKeysQuery.data?.apiKeys ?? [];
   const totalCreditsUsed = apiKeys.reduce(
-    (sum, k) => sum + (k.credisConsumed ?? 0),
+    (sum, k) => sum + (k.creditsConsumed ?? 0),
     0,
   );
   const credits = userProfileQuery.data?.credits;
@@ -147,7 +147,7 @@ export function Credits() {
                         {key.name}
                       </span>
                       <span className="tabular-nums font-medium">
-                        {(key.credisConsumed ?? 0).toLocaleString()}
+                        {(key.creditsConsumed ?? 0).toLocaleString()}
                       </span>
                     </div>
                   ))}

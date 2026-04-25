@@ -1,0 +1,16 @@
+{
+  "installCommand": "bun install",
+  "buildCommand": "bun run db:generate && bun run build --filter=bun-react-template",
+  "outputDirectory": "apps/dashboard-frontend/dist",
+  "functions": {
+    "api/[...route].ts": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -34,6 +34,7 @@ authRouter.post("/sign-in", async (req: Request, res: Response) => {
         httpOnly: true,
         maxAge: 7 * 86400 * 1000,
         sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
       });
       res.json({ message: "Signed in successfully" });
     } else {
@@ -66,6 +67,7 @@ authRouter.post("/sign-out", async (_req: Request, res: Response) => {
   res.clearCookie("auth", {
     httpOnly: true,
     sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
   res.json({ message: "Signed out successfully" });
 });

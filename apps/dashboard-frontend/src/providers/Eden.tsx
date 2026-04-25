@@ -20,10 +20,17 @@ type ApiKeyTogglePayload = {
 
 const getApiBaseUrl = () => {
   if (typeof window === "undefined") {
+    return "/api";
+  }
+
+  if (
+    window.location.hostname === "localhost" &&
+    window.location.port === "9001"
+  ) {
     return "http://localhost:3000";
   }
 
-  return `${window.location.protocol}//${window.location.hostname}:3000`;
+  return "/api";
 };
 
 async function request<T>(
